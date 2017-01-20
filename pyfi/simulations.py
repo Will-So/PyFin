@@ -5,10 +5,15 @@ to retire.
 Notes
 ---
     - For projections like this, it probably makes more sense to use
+
+TODO
+---
+    - Make all of the functions pure here)
+    - Make it more clear when something
 '''
 import numpy as np
-from .config import (expected_returns, target_allocation, royalties,target_monthly_spending,
-                     minimum_monthly_spending)
+from .config import (security_properties, target_allocation, royalties,target_monthly_spending,
+                     minimum_monthly_spending, guranteed_cash)
 import pandas as pd
 
 def royalty_returns(royalty):
@@ -16,27 +21,35 @@ def royalty_returns(royalty):
     return max(np.random.normal(royalties[royalty].expected_value, royalties[royalty].variance), 0)
 
 
-def yearly_spend():
+def yearly_spend(minimum_monthly_spending, target_monnthly_spending):
+    '''
+
+    :param minimum_monthly_spending: int, the minimum possible amount of monthly spending
+    :param target_monnthly_spending:
+
+    :return: Dollar Amount of the expected returns
+    '''
     minimum_possible = minimum_monthly_spending * 12
     expected_spending = target_monthly_spending * 12
     return max(np.random.normal(expected_spending, expected_spending* .15), minimum_possible)
 
 
-def lc_returns():
+# TODO: this should be for all, not just lending clu                b
+def lc_returns(security_properties):
     '''Lending Club returns. handles the case when bankruptcy occurs
     '''
     if np.random.uniform() > 0.99:
         # Lending club goes bankrupt with probability .01
         if np.random.uniform() > 0.5:
             # Get half back
-            lc_returns = -.5
+            returns = -.5
         else:
             # Judge Eliminates everything
-            lc_returns = -1
+            returns = -1
     else:
-        lc_returns = np.random.normal(expected_returns['lending_club'].expected_value,
-                                      expected_returns['lending_club'].variance)
-    return lc_returns
+        returns = np.random.normal(security_properties['lending_club'].expected_value,
+                                      security_properties['lending_club'].variance)
+    return returns
 
 
 def stock_returns(stock_e_return):
@@ -50,7 +63,7 @@ def stock_returns(stock_e_return):
     return np.random.normal(stock_e_return, 0.12)
 
 
-def sim_year(starting_amount):
+def sim_year(starting_amount, guranteed_cash, royalties, security_properties ):
     """I do this with a single simulation rather than 1000 at once.
     Rather the simulations will be done at the year level.
     """
