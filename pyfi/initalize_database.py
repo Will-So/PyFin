@@ -19,34 +19,54 @@ def is_table(cursor, nameTbl):
    return (nameTbl in getTables(cursor))
 
 
+# TODO: Determine whether this is really the best way to store everything
+# I am already doing something similar in the networth table. It may be more
+# noteworthy to
 def create_asset_tables(cursor):
     '''
     Creates tables if they don't already exist
-    :return:
     '''
+
     if not is_table(cursor, 'mint_accounts'):
         cursor.execute('''CREATE TABLE mint_accounts
                  (date text, account text, change real, balance real)''')
 
     if not is_table(cursor, 'stock_accounts'):
         cursor.execute('''CREATE TABLE stock_accounts
-        (account text, balance real, change real)''')
+        (date text, account text, stock text, balance real, change real)''')
 
     if not is_table(cursor, 'p2p_accounts'):
         cursor.execute('''CREATE TABLE p2p_accounts
         (account text, balance real, change real)''')
 
 
-def create_cookies_table(cursor):
+def create_credentials_table(cursor):
     '''
+    Create a cookies table if it doesn't already exist
+    '''
+    if not is_table(cursor, 'credentials'):
+        cursor.execute("""CREATE TABLE credentials
+        (name text, value text)""")
+
+def create_net_worth_table(cursor):
+    '''
+    Creates a net worth table; this is equivalent to a previous excel sheet
+        I have used in the past.
 
     :param cursor:
     :return:
     '''
-    if not is_table(cursor, 'cookies'):
-        cursor.execute("""CREATE TABLE cookies
-        (name text, cookie text)""")
+    if not is_table(cursor, 'net_worth'):
+        cursor.execute('''CREATE TABLE net_worth
+                 (date text, total real, difference real, days_between real,
+                 return real, cash real, debt real, p2p real, stocks real,
+                 retirement real, accounts_receivable real)''')
+    else:
+        print("net worth table already created")
 
-if __name__ == '__main___':
-    create_cookies_table(cursor)
+if __name__ == '__main__':
+    print("Checking if tables already exist and initializing them"
+          "if they don\'t")
+    create_credentials_table(cursor)
     create_asset_tables(cursor)
+    create_net_worth_table(cursor)
