@@ -141,7 +141,7 @@ def write_accounts(account_details, exclude, cursor):
 
             if previous_info is None or previous_info[0] != today:
                 cursor.execute("""INSERT INTO mint_accounts VALUES
-                               ({today}, "{account}", {account_id}, {change}, {balance},
+                               ("{today}", "{account}", {account_id}, {change}, {balance},
                                "{account_type}")""".format(
                                 today=today, account=account_name, change=change,
                                 balance=balance, account_id=account_id,
