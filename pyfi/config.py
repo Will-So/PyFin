@@ -8,20 +8,26 @@ TODO
 """
 from collections import namedtuple
 import os
+import logging
+
+# Tell app whether to refresh the files
+refresh = False
+GEN_TEST = False
 
 ## Login Credentials
-mint_login = ('wil.sorenson@gmail.com', os.environ['MINT_PASSWORD'])
+mint_credentials = ('wil.sorenson@gmail.com', os.environ['MINT_PASSWORD'])
 
 ## Mint accounts to exclude ## fiLoginDisplayName
 exclude = ['Lending Club', 'Interactive Brokers']
 
 # Stocks
 Stock = namedtuple('stock', ['beta', 'share'])
-stocks = {'SPY': [1, ], 'cash': [0, ]}
+stocks = {'SPY': [1, .8], 'cash': [0, -0.8]}
 ## Asset Allocation
 # TODO beta is going to be calculated seperately in future
-Security = namedtuple('security', ['expected_value', 'variance', 'beta'])
+#Security = namedtuple('security', ['expected_value', 'variance', 'beta'])
 
+Security = namedtuple('security', ['expected_value', 'variance'])
 
 
 security_properties = {'lending_club': Security(.07, .03), 'stock_market': Security(.07, .12),
@@ -61,3 +67,19 @@ monthly_spending_standard_deviation = .12
 '''
 
 risk_free_rate = .052
+
+# Setup logging for entire project
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
+# create a file handler
+handler = logging.FileHandler('pyfi.log')
+handler.setLevel(logging.INFO)
+
+# create a logging format
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+
+# add the handlers to the logger
+logger.addHandler(handler)
+
