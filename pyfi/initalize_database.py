@@ -1,9 +1,20 @@
+"""
+Initalizes databases if they have not already been created.
+
+Notes
+---
+- Currently single user. In the future, it may make more sense to include more users
+    in the same database
+
+"""
+
 import sqlite3
 
 conn = sqlite3.connect('accounts.db')
 cursor = conn.cursor()
 
-def getTables(cursor):
+
+def get_tables(cursor):
    """
    Get a list of all tables
    """
@@ -12,11 +23,12 @@ def getTables(cursor):
    names = [row[0] for row in cursor.fetchall()]
    return names
 
-def is_table(cursor, nameTbl):
+
+def is_table(cursor, table_name):
    """
    Determine if a table exists
    """
-   return (nameTbl in getTables(cursor))
+   return (table_name in get_tables(cursor))
 
 
 # TODO: Determine whether this is really the best way to store everything
@@ -29,7 +41,8 @@ def create_asset_tables(cursor):
 
     if not is_table(cursor, 'mint_accounts'):
         cursor.execute('''CREATE TABLE mint_accounts
-                 (date text, account text, change real, balance real)''')
+                 (date text, account text, account_id text, change real, balance real,
+                 account_type text)''')
 
     if not is_table(cursor, 'stock_accounts'):
         cursor.execute('''CREATE TABLE stock_accounts
