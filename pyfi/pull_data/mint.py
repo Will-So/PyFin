@@ -22,8 +22,6 @@ from pyfi.utilities import generate_test_data
 database = sqlite3.connect('../accounts.db')
 cursor = database.cursor()
 
-mint = mintapi.Mint(mint_credentials[0], mint_credentials[1], '7912A452BCC946A7A2079DF3CAC6FE7F',
-                    '234e7ea456584249ada51a72756e4916')
 
 
 def execute_pull():
@@ -36,7 +34,7 @@ def execute_pull():
     logger.info("Login successful")
     if refresh:
         logger.info("Started refreshing")
-        refresh_accounts()
+        refresh_accounts(mint)
         logger.info("Refreshed accounts")
 
     net_worth, account_details = get_account_details(mint)
@@ -91,7 +89,7 @@ def get_account_details(mint):
     return net_worth, accounts
 
 
-def refresh_accounts():
+def refresh_accounts(mint):
     """
     Refreshes the account and waits for 3 minutes until the accounts are done updating.
     :return:
