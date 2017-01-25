@@ -15,14 +15,16 @@ import time
 import arrow
 import sqlite3
 
-from pyfi.config import mint_credentials, exclude, refresh, logger, GEN_TEST
+from pyfi.config import mint_credentials, exclude, refresh, logger, GENERATE_TEST, db_location
 from pyfi.pull_data.get_mint_cookies import get_session_cookies
 from pyfi.utilities import generate_test_data
 
-database = sqlite3.connect('../accounts.db')
+database = sqlite3.connect(db_location)
 cursor = database.cursor()
 
-
+# Useful for dev but not necessary atm
+mint = mintapi.Mint(mint_credentials[0], mint_credentials[1], '7912A452BCC946A7A2079DF3CAC6FE7F',
+                    '234e7ea456584249ada51a72756e4916')
 
 def execute_pull():
     """
@@ -38,8 +40,10 @@ def execute_pull():
         logger.info("Refreshed accounts")
 
     net_worth, account_details = get_account_details(mint)
-    if GEN_TEST:
+
+    if GENERATE_TEST:
         generate_test_data(account_details, 'account_details')
+
     logger.info("Successfully retrieved {} accounts".format(len(account_details)))
     write_accounts(account_details=account_details, exclude=exclude, cursor=cursor)
     logger.info("Finished pulling data from mint")
