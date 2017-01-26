@@ -1,5 +1,9 @@
 '''
-Pull data from lending club. Must of this code is taken from
+Pull data from lending club. Much of this code is taken from Will Sorenson's Lending Club
+    project.
+
+
+When dealing with additional accounts, add the config file to __main__
 '''
 import sqlite3
 import requests
@@ -66,11 +70,16 @@ def write_summary(previous_info, today, df):
 
     df.to_sql('p2p_accounts', connection, if_exists='append', index=False)
 
-# TODO this should be its own function so that we can handle multiple accounts
-if __name__ == '__main__':
+
+def handle_account(config):
+    """
+
+    :param investor_id:
+    :return:
+    """
     previous_info = cursor.execute("""SELECT date, account_total FROM p2p_accounts
                                        WHERE account = "{investor_id}" ORDER BY date DESC
-                                       LIMIT 1""".format(investor_id=main_config['investor_id'])
+                                       LIMIT 1""".format(investor_id=config['investor_id'])
                                    ).fetchone()
 
     today = str(arrow.now().date())
@@ -78,8 +87,13 @@ if __name__ == '__main__':
     # Don't want to bother with anything if results are already entered
     if previous_info and previous_info[0] == today:
         logger.info("Already logged lending club today; not writing results to df.")
-        sys.exit(0)
+        return False
 
     lc_summary = pull_account_status(main_config)
     write_summary(previous_info, today, lc_summary)
     logger.info('Finished writing lending Club Results')
+
+
+if __name__ == '__main__':
+    handle_account(main_config)
+
