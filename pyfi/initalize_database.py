@@ -13,6 +13,8 @@ import sqlite3
 conn = sqlite3.connect('accounts.db')
 cursor = conn.cursor()
 
+from pyfi.config import logger
+
 
 def get_tables(cursor):
    """
@@ -40,15 +42,18 @@ def create_asset_tables(cursor):
     '''
 
     if not is_table(cursor, 'mint_accounts'):
+        logger.info("Creating mint_accounts table")
         cursor.execute('''CREATE TABLE mint_accounts
                  (date text, account text, account_id text, change real, balance real,
                  account_type text)''')
 
     if not is_table(cursor, 'stock_accounts'):
+        logger.info("Creating stock_accounts table")
         cursor.execute('''CREATE TABLE stock_accounts
         (date text, account text, stock text, balance real, change real)''')
 
     if not is_table(cursor, 'p2p_accounts'):
+        logger.info("Creating p2p_accounts table")
         cursor.execute('''CREATE TABLE p2p_accounts
         (account text, available_cash real, account_total real, combinedAdjustedNar real,
           tradedAdjustedNAR real, primaryAdjustedNAR real, platform text, date text, change real)''')
@@ -76,10 +81,10 @@ def create_net_worth_table(cursor):
                  return real, cash real, debt real, p2p real, stocks real,
                  retirement real, accounts_receivable real)''')
     else:
-        print("net worth table already created")
+        logger.info("net worth table already created")
 
 if __name__ == '__main__':
-    print("Checking if tables already exist and initializing them"
+    logger.info("Checking if tables already exist and initializing them"
           "if they don\'t")
     create_credentials_table(cursor)
     create_asset_tables(cursor)
