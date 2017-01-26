@@ -50,7 +50,8 @@ def create_asset_tables(cursor):
 
     if not is_table(cursor, 'p2p_accounts'):
         cursor.execute('''CREATE TABLE p2p_accounts
-        (account text, balance real, change real)''')
+        (account text, available_cash real, account_total real, combinedAdjustedNar real,
+          tradedAdjustedNAR real, primaryAdjustedNAR real, platform text, date text, change real)''')
 
 
 def create_credentials_table(cursor):
