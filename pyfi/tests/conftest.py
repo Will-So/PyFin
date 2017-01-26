@@ -25,3 +25,7 @@ def populated_cursor():
     credential_cursor = credential_conn.cursor()
     yield credential_cursor
     credential_conn.close()
+
+def pytest_addoption(parser):
+    parser.addoption("--runslow", action="store_true",
+        help="run slow tests")

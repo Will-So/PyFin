@@ -7,6 +7,6 @@ def test_table_creation():
     conn = sqlite3.connect(':memory:')
     cursor = conn.cursor()
     assert len(get_tables(cursor)) == 0
-    create_asset_tables()
+    create_asset_tables(cursor)
     assert len(get_tables(cursor)) == 3
 
