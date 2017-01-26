@@ -17,20 +17,20 @@ from pyfi.config import logger
 
 
 def get_tables(cursor):
-   """
+    """
    Get a list of all tables
    """
-   cmd = "SELECT name FROM sqlite_master WHERE type='table'"
-   cursor.execute(cmd)
-   names = [row[0] for row in cursor.fetchall()]
-   return names
+    cmd = "SELECT name FROM sqlite_master WHERE type='table'"
+    cursor.execute(cmd)
+    names = [row[0] for row in cursor.fetchall()]
+    return names
 
 
 def is_table(cursor, table_name):
-   """
+    """
    Determine if a table exists
    """
-   return (table_name in get_tables(cursor))
+    return (table_name in get_tables(cursor))
 
 
 # TODO: Determine whether this is really the best way to store everything
@@ -55,8 +55,8 @@ def create_asset_tables(cursor):
     if not is_table(cursor, 'p2p_accounts'):
         logger.info("Creating p2p_accounts table")
         cursor.execute('''CREATE TABLE p2p_accounts
-        (account text, available_cash real, account_total real, combinedAdjustedNar real,
-          tradedAdjustedNAR real, primaryAdjustedNAR real, platform text, date text, change real)''')
+        (account text, available_cash real, account_total real, combined_adjusted_NAR real,
+          traded_adjusted_NAR real, primary_adjusted_NAR real, platform text, date text, change real)''')
 
 
 def create_credentials_table(cursor):
@@ -66,6 +66,7 @@ def create_credentials_table(cursor):
     if not is_table(cursor, 'credentials'):
         cursor.execute("""CREATE TABLE credentials
         (name text, value text)""")
+
 
 def create_net_worth_table(cursor):
     '''
@@ -83,9 +84,10 @@ def create_net_worth_table(cursor):
     else:
         logger.info("net worth table already created")
 
+
 if __name__ == '__main__':
     logger.info("Checking if tables already exist and initializing them"
-          "if they don\'t")
+                "if they don\'t")
     create_credentials_table(cursor)
     create_asset_tables(cursor)
     create_net_worth_table(cursor)

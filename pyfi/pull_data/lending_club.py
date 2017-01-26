@@ -31,12 +31,15 @@ def pull_account_status(lc_config):
 
     summary = pd.io.json.json_normalize(summary)
 
-    summary.columns.rename({'netAnnualizedReturn.combinedAdjustedNAR': 'combinedAdjustedNAR',
-                            'netAnnualizedReturn.primaryAdjustedNAR': 'primaryAdjustedNAR',
-                            'netAnnualizedReturn.tradedAdjustedNAR': 'tradedAdjustedNar'})
+    # Rename columns for consistency with the rest of the project
+    summary = summary.rename(columns={'netAnnualizedReturn.combinedAdjustedNAR': 'combined_adjusted_NAR',
+                            'netAnnualizedReturn.primaryAdjustedNAR': 'primary_adjusted_NAR',
+                            'netAnnualizedReturn.tradedAdjustedNAR': 'traded_adjusted_NAR',
+                            'investorId': 'account', 'availableCash': 'available_cash',
+                            'accountTotal': 'account_total'})
 
-    important_columns = ['investorId', 'availableCash', 'accountTotal', 'combinedAdjustedNAR',
-                         'tradedAdjustedNar', 'primaryAdjustedNAR']
+    important_columns = ['account', 'available_cash', 'account_total', 'combined_adjusted_NAR',
+                         'traded_adjusted_NAR', 'primary_adjusted_NAR']
 
     summary = summary[important_columns] ## Keep only the columns we are interested in
 
@@ -60,13 +63,15 @@ def write_summary(previous_info, today, df):
 
     df['change'] = df.accountTotal - previous_balance
 
-    df.to_sql('p2p_accounts', connection)
+    df.to_sql('p2p_accounts', connection, if_exists='append', index=False)
 
 
 if __name__ == '__main__':
-    previous_info = cursor.execute("""SELECT date, accountTotal FROM mint_accounts
-                                       WHERE investorId = "{investor_id}" ORDER BY date DESC
-                                       LIMIT 1""".format(investor_id=df.InvestorId)).fetchone()
+    previous_info = cursor.execute("""SELECT date, account_total FROM p2p_accounts
+                                       WHERE account = "{investor_id}" ORDER BY date DESC
+                                       LIMIT 1""".format(investor_id=main_config['investor_id'])
+                                   ).fetchone()
+
     today = str(arrow.now().date())
 
     # Don't want to bother with anything if results are already entered
