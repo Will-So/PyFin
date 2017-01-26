@@ -12,7 +12,10 @@ import logging
 
 # Tell app whether to refresh the files
 refresh = False
-GEN_TEST = False
+GENERATE_TEST = False
+
+config_path =  os.path.dirname(os.path.abspath(__file__))
+db_location = os.path.join(config_path, 'accounts.db')
 
 ## Login Credentials
 mint_credentials = ('wil.sorenson@gmail.com', os.environ['MINT_PASSWORD'])
@@ -73,6 +76,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 # create a file handler
+# TODO Change logger directory so everything is logged at the same level
 handler = logging.FileHandler('pyfi.log')
 handler.setLevel(logging.INFO)
 
@@ -83,3 +87,7 @@ handler.setFormatter(formatter)
 # add the handlers to the logger
 logger.addHandler(handler)
 
+
+## Lending Club
+main_config = dict(credentials=os.environ['LENDING_CLUB_API'], investor_id=5809260,
+                   portfolio_id=65013027)

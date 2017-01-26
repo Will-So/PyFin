@@ -1,0 +1,78 @@
+'''
+Pull data from lending club. Must of this code is taken from
+'''
+import sqlite3
+import requests
+import pandas as pd
+import arrow
+import sys
+
+from pyfi.config import main_config, db_location, logger
+
+connection = sqlite3.connect(db_location)
+cursor = connection.cursor()
+
+
+def pull_account_status(lc_config):
+    """
+    Retrieves all of the important account details from lending_club
+
+    :param lc_config:
+    :return:
+    """
+    headers = {'Authorization': lc_config['credentials']}
+
+    r = requests.get('https://api.lendingclub.com/api/investor/{version}/accounts/{investor_id}/summary/'.format(
+        version='v1', investor_id=main_config['investor_id']), headers=headers)
+
+    assert r.status_code == 200
+
+    summary = r.json()
+
+    summary = pd.io.json.json_normalize(summary)
+
+    summary.columns.rename({'netAnnualizedReturn.combinedAdjustedNAR': 'combinedAdjustedNAR',
+                            'netAnnualizedReturn.primaryAdjustedNAR': 'primaryAdjustedNAR',
+                            'netAnnualizedReturn.tradedAdjustedNAR': 'tradedAdjustedNar'})
+
+    important_columns = ['investorId', 'availableCash', 'accountTotal', 'combinedAdjustedNAR',
+                         'tradedAdjustedNar', 'primaryAdjustedNAR']
+
+    summary = summary[important_columns] ## Keep only the columns we are interested in
+
+    return summary
+
+def write_summary(previous_info, today, df):
+    """
+    Writes the summary data to SQL if it has not already been written today.
+
+    :param df: pd.DataFrame containing all of the values of interst.
+    :return:
+    """
+
+    df['platform'] = 'lending_club'
+    df['date'] = today
+
+    if previous_info:
+        previous_balance = previous_info[1] # 1 is the second value in the tuple
+    else:
+        previous_balance = 0
+
+    df['change'] = df.accountTotal - previous_balance
+
+    df.to_sql('p2p_accounts', connection)
+
+
+if __name__ == '__main__':
+    previous_info = cursor.execute("""SELECT date, accountTotal FROM mint_accounts
+                                       WHERE investorId = "{investor_id}" ORDER BY date DESC
+                                       LIMIT 1""".format(investor_id=df.InvestorId)).fetchone()
+    today = str(arrow.now().date())
+
+    # Don't want to bother with anything if results are already entered
+    if previous_info and previous_info[0] == today:
+        logger.info("Already logged lending club today; not writing results to df.")
+        sys.exit(0)
+
+    lc_summary = pull_account_status(main_config)
+    write_summary(previous_info, today, lc_summary)
