@@ -2,8 +2,8 @@ import pytest
 import sqlite3
 
 from pyfi.pull_data.mint import (mint_login, get_account_details, refresh_accounts,
-                                write_accounts, database, cursor)
-#from pyfi.config import mint_credentials
+                                write_accounts, cursor)
+from pyfi.config import exclude
 
 
 MANUAL = False
@@ -36,8 +36,8 @@ def test_mint_new_login(new_cursor):
     This is skipped by default because it requires manual login
     :return:
     """
-
-    mint.get_net_worth()
+    new_mint = mint_login(new_cursor)
+    new_mint.get_net_worth()
 
 
 def test_get_account_details(populated_cursor):
@@ -50,6 +50,21 @@ def test_get_account_details(populated_cursor):
 
     account_details = get_account_details(mint)
     assert len(account_details) == 2 # Net worth and account details
+
+
+def test_database_writes(new_cursor):
+    """
+
+    :param new_cursor:
+    :return:
+    """
+    net_worth, account_details = get_account_details(mint)
+    write_accounts(account_details, exclude=exclude, cursor=new_cursor)
+
+    results = new_cursor.execute("""SELECT * FROM mint_accounts""").fetchall()
+
+    assert len(results) > 5 # Number of accounts written to.
+    assert len(results[1]) == 6 # Number of columns within the results
 
 
 @slow
