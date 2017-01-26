@@ -45,6 +45,7 @@ def pull_account_status(lc_config):
 
     return summary
 
+
 def write_summary(previous_info, today, df):
     """
     Writes the summary data to SQL if it has not already been written today.
@@ -61,11 +62,11 @@ def write_summary(previous_info, today, df):
     else:
         previous_balance = 0
 
-    df['change'] = df.accountTotal - previous_balance
+    df['change'] = df.account_total - previous_balance
 
     df.to_sql('p2p_accounts', connection, if_exists='append', index=False)
 
-
+# TODO this should be its own function so that we can handle multiple accounts
 if __name__ == '__main__':
     previous_info = cursor.execute("""SELECT date, account_total FROM p2p_accounts
                                        WHERE account = "{investor_id}" ORDER BY date DESC
@@ -81,3 +82,4 @@ if __name__ == '__main__':
 
     lc_summary = pull_account_status(main_config)
     write_summary(previous_info, today, lc_summary)
+    logger.info('Finished writing lending Club Results')
