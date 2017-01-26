@@ -23,8 +23,9 @@ database = sqlite3.connect(db_location)
 cursor = database.cursor()
 
 # Useful for dev but not necessary atm
-mint = mintapi.Mint(mint_credentials[0], mint_credentials[1], '7912A452BCC946A7A2079DF3CAC6FE7F',
-                    '234e7ea456584249ada51a72756e4916')
+# mint = mintapi.Mint(mint_credentials[0], mint_credentials[1], '7912A452BCC946A7A2079DF3CAC6FE7F',
+#                     '234e7ea456584249ada51a72756e4916')
+
 
 def execute_pull():
     """
@@ -47,6 +48,7 @@ def execute_pull():
     logger.info("Successfully retrieved {} accounts".format(len(account_details)))
     write_accounts(account_details=account_details, exclude=exclude, cursor=cursor)
     logger.info("Finished pulling data from mint")
+
 
 def mint_login(cursor):
     """

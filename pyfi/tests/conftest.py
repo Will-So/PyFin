@@ -8,6 +8,7 @@ import sqlite3
 from pyfi.initalize_database import create_asset_tables
 from pyfi.config import db_location
 
+
 @pytest.fixture(scope='module', autouse=True)
 def new_cursor():
     conn = sqlite3.connect(':memory:')
