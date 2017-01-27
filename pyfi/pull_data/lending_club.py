@@ -50,7 +50,7 @@ def pull_account_status(lc_config):
     return summary
 
 
-def write_summary(previous_info, today, df):
+def write_summary(previous_info, today, df, connection):
     """
     Writes the summary data to SQL if it has not already been written today.
 
@@ -71,12 +71,14 @@ def write_summary(previous_info, today, df):
     df.to_sql('p2p_accounts', connection, if_exists='append', index=False)
 
 
-def handle_account(config):
+def handle_account(config, conn):
     """
+    Retrieves data for a lending club account and writes to database.
 
-    :param investor_id:
+    :param config: dictionary that contains all configuration info for a lending club account
     :return:
     """
+    cursor = conn.cursor()
     previous_info = cursor.execute("""SELECT date, account_total FROM p2p_accounts
                                        WHERE account = "{investor_id}" ORDER BY date DESC
                                        LIMIT 1""".format(investor_id=config['investor_id'])
@@ -90,10 +92,10 @@ def handle_account(config):
         return False
 
     lc_summary = pull_account_status(main_config)
-    write_summary(previous_info, today, lc_summary)
+    write_summary(previous_info, today, lc_summary, conn)
     logger.info('Finished writing lending Club Results')
 
 
 if __name__ == '__main__':
-    handle_account(main_config)
+    handle_account(main_config, connection)
 

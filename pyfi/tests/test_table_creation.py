@@ -13,4 +13,3 @@ def test_asset_creation():
     create_credentials_table(cursor)
     create_net_worth_table(cursor)
 
-
