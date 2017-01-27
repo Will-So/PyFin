@@ -77,7 +77,8 @@ logger.setLevel(logging.INFO)
 
 # create a file handler
 # TODO Change logger directory so everything is logged at the same level
-handler = logging.FileHandler('pyfi.log')
+log_directory = os.path.join(config_path, 'pyfi.log')
+handler = logging.FileHandler(log_directory)
 handler.setLevel(logging.INFO)
 
 # create a logging format
