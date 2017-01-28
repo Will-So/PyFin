@@ -20,17 +20,17 @@ today = str(arrow.now().date())
 
 
 def get_xml_report(ib_credentials):
-
-    generate_report = requests.get(requests.get('https://gdcdyn.interactivebrokers.com/Universal/servlet/FlexStatementService'
+    # import pdb; pdb.set_trace()
+    generate_report = requests.get('https://gdcdyn.interactivebrokers.com/Universal/servlet/FlexStatementService'
                                                 '.SendRequest?t={TOKEN}&q={QUERY_ID}&v=3'.format(TOKEN=ib_credentials['token'],
-                                                QUERY_ID=ib_credentials['flex_id'])))
+                                                QUERY_ID=ib_credentials['flex_id']))
 
     parsed_response = ET.fromstring(generate_report.text)
     report_id = int(parsed_response[1].text) # 1 is just the element of the id.
 
     get_data = requests.get('https://gdcdyn.interactivebrokers.com/Universal/servlet/FlexStatement'
     'Service.GetStatement?q={REFERENCE_CODE}&t={TOKEN}&v=3'.format(REFERENCE_CODE=report_id,
-                                                              TOKEN=ib_credentials['flex_id']))
+                                                              TOKEN=ib_credentials['token']))
 
     return get_data.text
 
@@ -47,6 +47,7 @@ def parse_xml(xml_data):
 
     # Get the details of the current positions
     position_details = {}
+    #import pdb; pdb.set_trace()
     positions = root['FlexStatements']['FlexStatement'].OpenPositions
     for child in positions.getchildren():
         child = dict(child.attrib)
@@ -89,18 +90,20 @@ def write_data(df, db_location):
     cursor = connection.cursor()
 
     # Check to make sure that site id and user_id is the same
-    previous_info = cursor.execute("""SELECT date, site_id, account_total FROM stock_accounts
-                                       WHERE user_id= "{user_id}"  AND site_id = {} ORDER BY date DESC
+    previous_info = cursor.execute("""SELECT date, site_id, positionValue FROM stock_accounts
+                                       WHERE user_id= "{user_id}"  AND site_id = {site_id} ORDER BY date DESC
                                        LIMIT 1""".format(user_id=1, site_id=1)
                                    ).fetchone()
 
     if previous_info and previous_info[0] == today:
         logger.info("Already logged to stocks_today; not writing results to df.")
 
-    df.to_sql('p2p_accounts', connection, if_exists='append', index=False)
+
+    df.to_sql('stock_accounts', connection, if_exists='append', index=True, index_label='symbol')
 
 
 if __name__ == '__main__':
     xml_data = get_xml_report(ib_credentials)
     processed_data = parse_xml(xml_data)
+    print(processed_data)
     write_data(processed_data, db_location)
