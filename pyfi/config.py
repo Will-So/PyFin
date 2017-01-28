@@ -20,6 +20,8 @@ db_location = os.path.join(config_path, 'accounts.db')
 ## Login Credentials
 mint_credentials = ('wil.sorenson@gmail.com', os.environ['MINT_PASSWORD'])
 
+ib_credentials = {'token': 278534427760283813354678, 'flex_id': 225259}
+
 ## Mint accounts to exclude ## fiLoginDisplayName
 exclude = ['Lending Club', 'Interactive Brokers']
 

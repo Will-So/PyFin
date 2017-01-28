@@ -12,9 +12,13 @@ TODO
     - Make it more clear when something
 '''
 import numpy as np
-from .config import (security_properties, target_allocation, royalties,target_monthly_spending,
-                     minimum_monthly_spending, guranteed_cash)
 import pandas as pd
+
+from pyfi.config import (security_properties, target_allocation, royalties,target_monthly_spending,
+                     minimum_monthly_spending, guranteed_cash, risk_free_rate)
+
+from pyfi.utilities import calculate_expected_return
+
 
 def royalty_returns(royalty):
     # Royalties can;t go below 0
@@ -52,7 +56,9 @@ def lc_returns(security_properties):
     return returns
 
 
-def stock_returns(stock_e_return):
+## TODO incorporate the expected value of individual securities rather than the entire market
+## http://quant.stackexchange.com/questions/4589/how-to-simulate-stock-prices-with-a-geometric-brownian-motion
+def stock_returns(stock_e_return, stocks):
     '''
     param: stock_e_return The expected value of annual stock returns from now until the end.
 
@@ -60,7 +66,10 @@ def stock_returns(stock_e_return):
 
     Uses a normal distribution
     '''
-    return np.random.normal(stock_e_return, 0.12)
+    market_return = np.random.normal(stock_e_return, 0.12)
+    for stock in stocks:
+        stock
+
 
 
 def sim_year(starting_amount, guranteed_cash, royalties, security_properties ):
@@ -72,8 +81,13 @@ def sim_year(starting_amount, guranteed_cash, royalties, security_properties ):
     royalty_cash = royalty_returns() * 12
     yearly_expend = yearly_spend()
 
+    guranteed_cash = sum(guranteed_cash.values())
+
+    for royality in royalty_cash:
+
+
     change = (royalty_cash + stock_cash +
-                       yearly_social_securtity - yearly_expend)
+                       guranteed_cash - yearly_expend)
 
     ending_amount = starting_amount - change
 
@@ -82,7 +96,10 @@ def sim_year(starting_amount, guranteed_cash, royalties, security_properties ):
                  e_social_security, yearly_expend, ending_amount]]))
 
     simulations.columns = ['simulation', 'change', 'royalties',
-                       'stocks', 'social_security', 'spent',
-                       'left']
+                           'stocks', 'social_security', 'spent',
+                           'left']
     simulations = simulations.set_index('simulation')
     return simulations
+
+if __name__ == '__main__':
+

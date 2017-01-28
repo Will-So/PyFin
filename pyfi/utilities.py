@@ -1,6 +1,7 @@
 import pickle
 
-def correlation_matrix(**kwargs):
+
+def correlation_matrix(**securities):
     '''
     This function returns the correlation between the returns of the S&P 500
     and the input securities. I use quarterly values for now as that is the
@@ -9,6 +10,8 @@ def correlation_matrix(**kwargs):
     :param kwargs: dict of securities with their quarterly returns.
     :return: correlation matrix of securities with S&P 500
     '''
+    
+
 
 def calculate_expected_return(beta, risk_free_rate, market_returns):
     """
