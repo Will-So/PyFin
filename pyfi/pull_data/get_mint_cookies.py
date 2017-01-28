@@ -41,36 +41,3 @@ def get_session_cookies(username, password):
     finally:
         driver.close()
 
-
-class WMint(mintapi.Mint):
-    def get_investments(self):
-        """
-        Gets all investments in the link:
-
-        https://mint.intuit.com/investment.event
-
-        Steps:
-            1) Get investment account IDs
-            2) The format of it will be https://mint.intuit.com/investment.event#location:{"accountId":"8536885"}
-
-        """
-
-        accounts = self.get_accounts()
-        investment_account_ids = [account['accountId'] for account in accounts if
-                                  account['accountType'] == 'investment']
-
-        investment_dict = dict()  # dict of dataframes
-        for id in investment_account_ids:
-            url = '{}/investment.event?accountId={id}'.format(MINT_ROOT_URL, id=8928652)
-            r = requests.get(url)
-            import pdb;
-            pdb.set_trace()
-            print(r.text)
-            print(url)
-            try:
-                positions = pd.read_html(url, attrs={'class': 'portfolio'})  # This will be the actual html that is read
-                investment_account_ids[id] = positions
-            except ValueError:
-                print("Couldn't retrieve positions for table {}".format(id))
-
-        return investment_dict  # TODO check what the other items are returning
