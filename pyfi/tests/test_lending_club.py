@@ -13,14 +13,12 @@ def test_pull_account():
     assert len(df) == 1 # Number or rows
 
 
-def test_handle_accounts():
+def test_handle_accounts(new_connection):
     '''
     Also tests write_summary
-    :return:
+
     '''
-    new_connection = sqlite3.connect(':memory:')
     temp_cursor = new_connection.cursor()
-    create_asset_tables(temp_cursor)
 
     handle_account(main_config, new_connection)
 
@@ -30,3 +28,29 @@ def test_handle_accounts():
                                    ).fetchone()
     today = str(arrow.now().date())
     assert results[0] == today
+
+
+def test_double_write(new_connection):
+    '''
+    Tests that accounts are only written to once
+    '''
+    temp_cursor = new_connection.cursor()
+    handle_account(main_config, new_connection)
+
+    results = temp_cursor.execute("""SELECT date, account_total FROM p2p_accounts
+                                       WHERE account = "{investor_id}" ORDER BY date DESC
+                                       """.format(investor_id=main_config['investor_id'])
+                                   ).fetchall()
+
+    prior_length = len(results)
+
+    handle_account(main_config, new_connection)
+
+    new_results = temp_cursor.execute("""SELECT date, account_total FROM p2p_accounts
+                                       WHERE account = "{investor_id}" ORDER BY date DESC
+                                       """.format(investor_id=main_config['investor_id'])
+                                   ).fetchall()
+
+    new_length = len(new_results)
+
+    assert prior_length == new_length
