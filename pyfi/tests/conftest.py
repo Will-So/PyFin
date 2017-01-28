@@ -26,6 +26,18 @@ def populated_cursor():
     yield credential_cursor
     credential_conn.close()
 
+
 def pytest_addoption(parser):
     parser.addoption("--runslow", action="store_true",
         help="run slow tests")
+
+@pytest.fixture(scope='module', autouse=True)
+def new_connection():
+    """
+    Necessary in the case that we are writing using the Pandas API
+    """
+    conn = sqlite3.connect(':memory:')
+    conn_cursor = conn.cursor()
+    create_asset_tables(conn_cursor)
+    yield conn
+    conn.close()

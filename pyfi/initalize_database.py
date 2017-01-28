@@ -50,7 +50,8 @@ def create_asset_tables(cursor):
     if not is_table(cursor, 'stock_accounts'):
         logger.info("Creating stock_accounts table")
         cursor.execute('''CREATE TABLE stock_accounts
-        (date text, account text, stock text, balance real, change real)''')
+        (date text, user_id text, site_id text, symbol text, description text,
+         cost_basis real, position real, positionValue real)''')
 
     if not is_table(cursor, 'p2p_accounts'):
         logger.info("Creating p2p_accounts table")
