@@ -80,13 +80,12 @@ def parse_xml(xml_data):
     return pd.DataFrame(position_details).T # by default the symbol is a column
 
 
-def write_data(df, db_location):
+def write_data(df, connection):
     '''
 
     :param df:
     :return:
     '''
-    connection = sqlite3.connect(db_location)
     cursor = connection.cursor()
 
     # Check to make sure that site id and user_id is the same
@@ -97,13 +96,12 @@ def write_data(df, db_location):
 
     if previous_info and previous_info[0] == today:
         logger.info("Already logged to stocks_today; not writing results to df.")
-
-
-    df.to_sql('stock_accounts', connection, if_exists='append', index=True, index_label='symbol')
+    else:
+        df.to_sql('stock_accounts', connection, if_exists='append', index=True, index_label='symbol')
 
 
 if __name__ == '__main__':
     xml_data = get_xml_report(ib_credentials)
     processed_data = parse_xml(xml_data)
     print(processed_data)
-    write_data(processed_data, db_location)
+    write_data(processed_data, sqlite3.connect(db_location))
