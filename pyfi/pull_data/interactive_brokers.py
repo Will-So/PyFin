@@ -13,6 +13,7 @@ from lxml import objectify
 import pandas as pd
 import sqlite3
 import arrow
+import time
 
 from pyfi.config import ib_credentials, db_location, logger
 
@@ -31,6 +32,8 @@ def get_xml_report(ib_credentials):
     get_data = requests.get('https://gdcdyn.interactivebrokers.com/Universal/servlet/FlexStatement'
     'Service.GetStatement?q={REFERENCE_CODE}&t={TOKEN}&v=3'.format(REFERENCE_CODE=report_id,
                                                               TOKEN=ib_credentials['token']))
+
+    time.sleep(2) # Sometimes the data isn't pulled quickly enough
 
     return get_data.text
 
