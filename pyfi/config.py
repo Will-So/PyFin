@@ -9,6 +9,7 @@ TODO
 from collections import namedtuple
 import os
 import logging
+import sys
 
 # Tell app whether to refresh the files
 refresh = False
@@ -90,6 +91,10 @@ handler.setFormatter(formatter)
 
 # add the handlers to the logger
 logger.addHandler(handler)
+
+# Also move all loggers to stdout. Can be useful for dev
+stdout_hadnerl = logging.StreamHandler(sys.stdout)
+logger.addHandler(stdout_hadnerl)
 
 
 ## Lending Club
