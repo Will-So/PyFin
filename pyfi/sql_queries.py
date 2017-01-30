@@ -21,5 +21,5 @@ most_recent_stocks = """select * from stock_accounts where date == date('now')
 """
 most_recent_accounts_pending = """select * from pending_payments where resolved = 0"""
 
-most_recent_net_worth = """select total from net_worth
+most_recent_net_worth = """select date, net_worth from net_worth
                            order by date DESC limit 1"""

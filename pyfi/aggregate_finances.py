@@ -16,6 +16,7 @@ import arrow
 import sqlite3
 from collections import defaultdict
 import pandas as pd
+import sys
 
 today = str(arrow.now().date())
 
@@ -62,35 +63,49 @@ def calculate(connection, assets, investments):
     :param assets:
     :return:
     """
-    net_worth = 0
 
     # Take the sum of all the assets
     cursor = connection.cursor()
 
     debt = assets.query('account_type == "credit"').balance.sum()
-    cash = assets.query('account_type == "debit"').balance.sum()
+    cash = assets.query('account_type == "bank"').balance.sum()
     stocks = investments.positionValue.sum()
-    retirement = assets.query('account_type == "investment"')
+    retirement = assets.query('account_type == "investment"').balance.sum()
 
     accounts_receivable = pd.read_sql(most_recent_accounts_pending, connection)
     accounts_receivable = accounts_receivable.amount.sum()
 
     p2p_total = pd.read_sql(most_recent_p2p, connection).account_total.sum()
-    net_worth = p2p_total + accounts_receivable + retirement + stocks - debt + cash
+    net_worth = p2p_total + accounts_receivable + retirement + stocks + debt + cash
 
     try:
-        previous_net_worth = cursor.execute(most_recent_net_worth).fetchone()[0]
-    except KeyError:
+        net_worth_info = cursor.execute(most_recent_net_worth).fetchone()
+        days_between = net_worth_info[0] - today
+        # Only assign a new net_worth if it hasn't happened yet.
+        if net_worth_info[0] == today:
+            logger("Net worth already logged today! Not writing again")
+
+            # TODO Check if this is the best way to leave a process
+            sys.exit() # At this point, we want to completely stop running the script
+        else:
+            previous_net_worth = net_worth_info[1]
+
+    except TypeError: # When no data is stored in the database
         logger.warning("Not networth data found, assuming previous networth was 0")
         previous_net_worth = 0
+        days_between = 0
 
     difference = net_worth - previous_net_worth
 
-    return_rate = net_worth / previous_net_worth# Return on investments
+    try:
+        return_rate = net_worth / previous_net_worth# Return on investments
+    except ZeroDivisionError: # Case when previous_networth is undefined
+        return_rate = 0
 
     return dict(difference=difference, previous_net_worth=previous_net_worth, net_worth=net_worth,
-                p2p_total=p2p_total, accounts_receivable=accounts_receivable, retirement=retirement,
-                stocks=stocks, debt=debt, return_rate=return_rate)
+                p2p=p2p_total, accounts_receivable=accounts_receivable, retirement=retirement,
+                stocks=stocks, debt=debt, return_rate=return_rate, date=today,
+                days_between=days_between)
 
 
 def write_net_worth(values, connection):
@@ -99,8 +114,10 @@ def write_net_worth(values, connection):
     :param values:
     :return:
     """
-    pd.to_sql(values, connection)
-
+    # import pdb; pdb.set_trace()
+    df = pd.DataFrame.from_dict(values, orient='index').T
+    df.to_sql('net_worth', connection, index=False, if_exists='append')
+    logger("Finished writing to net worth")
 
 
 if __name__ == '__main__':
