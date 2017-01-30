@@ -26,9 +26,9 @@ ib_credentials = {'token': 278534427760283813354678, 'flex_id': 225259}
 exclude = ['Lending Club', 'Interactive Brokers']
 included_investments = ['Will IRA']
 
-# Stocks
+# Asset Correlations
+stock_betas = dict(VOO=1, cash=0, VB=1.19, VO=1.09, lc=.2, prosper=.1)
 
-stock_betas = dict(VOO=1, cash=0, VB=1.19, VO=1.09)
 ## Asset Allocation
 # TODO beta is going to be calculated seperately in future
 #Security = namedtuple('security', ['expected_value', 'variance', 'beta'])
