@@ -8,9 +8,9 @@ Steps
 3) Write those to table
 
 '''
-from pyfi.config import db_location
+from pyfi.config import db_location, logger
 from pyfi.sql_queries import (most_recent_accounts_pending, most_recent_mint_accounts,
-                              most_recent_p2p, most_recent_stocks)
+                              most_recent_p2p, most_recent_stocks, most_recent_net_worth)
 
 import arrow
 import sqlite3
@@ -47,14 +47,15 @@ def get_most_recent_investments(connection):
     return investments
 
 
-# TODO This still needs to be written. For now I'll make it a constant because its just cash
+# TODO This still needs to be written with more flexibility. For now I'll make it a constant because its just cash
 def get_retirement_accounts():
     """
 
     :return:
     """
 
-def calculate(assets):
+
+def calculate(connection, assets, investments):
     """
     Given a dict of assets,
 
@@ -64,17 +65,26 @@ def calculate(assets):
     net_worth = 0
 
     # Take the sum of all the assets
+    cursor = connection.cursor()
 
+    debt = assets.query('account_type == "credit"').balance.sum()
+    cash = assets.query('account_type == "debit"').balance.sum()
+    stocks = investments.positionValue.sum()
+    retirement = assets.query('account_type == "investment"')
 
-    debt = assets.query('account_type == "credit"')
-    cash = assets.query('account_type == "debit"')
-    stocks =
-    retirement =
-    accounts_receivable =
-    p2p_total =
+    accounts_receivable = pd.read_sql(most_recent_accounts_pending, connection)
+    accounts_receivable = accounts_receivable.amount.sum()
+
+    p2p_total = pd.read_sql(most_recent_p2p, connection).account_total.sum()
     net_worth = p2p_total + accounts_receivable + retirement + stocks - debt + cash
-    previous_net_worth =
-    difference =
+
+    try:
+        previous_net_worth = cursor.execute(most_recent_net_worth).fetchone()[0]
+    except KeyError:
+        logger.warning("Not networth data found, assuming previous networth was 0")
+        previous_net_worth = 0
+
+    difference = net_worth - previous_net_worth
 
     return_rate = net_worth / previous_net_worth# Return on investments
 
@@ -83,6 +93,18 @@ def calculate(assets):
                 stocks=stocks, debt=debt, return_rate=return_rate)
 
 
+def write_net_worth(values, connection):
+    """
+
+    :param values:
+    :return:
+    """
+    pd.to_sql(values, connection)
+
+
+
 if __name__ == '__main__':
-    assets = get_most_recent_assets(db_location)
-    calculated_values = calculate(assets)
+    assets = get_most_recent_assets(connection)
+    investments = get_most_recent_investments(connection)
+    calculated_values = calculate(connection, assets, investments)
+    write_net_worth(calculated_values, connection)
