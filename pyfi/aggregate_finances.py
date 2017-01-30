@@ -9,31 +9,50 @@ Steps
 
 '''
 from pyfi.config import db_location
-from pyfi.sql_queries import (most_recent_accounts_receivable, most_recent_mint_accounts,
+from pyfi.sql_queries import (most_recent_accounts_pending, most_recent_mint_accounts,
                               most_recent_p2p, most_recent_stocks)
 
 import arrow
 import sqlite3
 from collections import defaultdict
+import pandas as pd
 
 today = str(arrow.now().date())
 
+connection = sqlite3.connect(db_location)
 
-def get_most_recent_assets(db_location):
+
+def get_most_recent_assets(connection):
     '''
+    Pandas is going to be advantageous here because
 
     :param db_location:
     :return:
     '''
-    cursor = sqlite3.connect(db_location).cursor()
-    assets = defaultdict(int)
-    asset_data = cursor.execute(most_recent_mint_accounts).fetchall()
+    # cursor = connection.cursor()
+    # assets = defaultdict(int)
+    # asset_data = cursor.execute(most_recent_mint_accounts).fetchall()
 
-
-
+    assets = pd.read_sql(most_recent_mint_accounts, connection)
 
     return assets
 
+def get_most_recent_investments(connection):
+    """
+
+    :return:
+    """
+    investments = pd.read_sql(most_recent_stocks, connection)
+
+    return investments
+
+
+# TODO This still needs to be written. For now I'll make it a constant because its just cash
+def get_retirement_accounts():
+    """
+
+    :return:
+    """
 
 def calculate(assets):
     """
@@ -45,15 +64,15 @@ def calculate(assets):
     net_worth = 0
 
     # Take the sum of all the assets
-    for asset in assets.values():
-        net_worth += asset
 
-    debt =
+
+    debt = assets.query('account_type == "credit"')
+    cash = assets.query('account_type == "debit"')
     stocks =
     retirement =
     accounts_receivable =
     p2p_total =
-    net_worth = p2p_total + accounts_receivable + retirement + stocks - debt
+    net_worth = p2p_total + accounts_receivable + retirement + stocks - debt + cash
     previous_net_worth =
     difference =
 

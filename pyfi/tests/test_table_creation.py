@@ -9,7 +9,7 @@ def test_asset_creation():
     cursor = conn.cursor()
     assert len(get_tables(cursor)) == 0
     create_asset_tables(cursor)
-    assert len(get_tables(cursor)) == 3
+    assert len(get_tables(cursor)) == 4
     create_credentials_table(cursor)
     create_net_worth_table(cursor)
 
