@@ -59,6 +59,11 @@ def create_asset_tables(cursor):
         (account text, available_cash real, account_total real, combined_adjusted_NAR real,
           traded_adjusted_NAR real, primary_adjusted_NAR real, platform text, date text, change real)''')
 
+    if not is_table(cursor, 'pending_payments'):
+        logger.info("Creating pending_payments")
+        cursor.execute("""CREATE TABLE pending_payments
+        (date text, amount real, due_date text, note text, resolved int)""")
+
 
 def create_credentials_table(cursor):
     '''
