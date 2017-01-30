@@ -86,7 +86,7 @@ def create_net_worth_table(cursor):
         cursor.execute('''CREATE TABLE net_worth
                  (date text, net_worth real, difference real, days_between real,
                  return_rate real, cash real, debt real, p2p real, stocks real,
-                 retirement real, accounts_receivable real)''')
+                 retirement real, accounts_receivable real, previous_net_worth real)''')
     else:
         logger.info("net worth table already created")
 
