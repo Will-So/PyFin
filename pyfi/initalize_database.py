@@ -7,13 +7,12 @@ Notes
     in the same database
 
 """
+from pyfi.config import logger
 
 import sqlite3
 
 conn = sqlite3.connect('accounts.db')
 cursor = conn.cursor()
-
-from pyfi.config import logger
 
 
 def get_tables(cursor):
