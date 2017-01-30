@@ -27,8 +27,8 @@ exclude = ['Lending Club', 'Interactive Brokers']
 included_investments = ['Will IRA']
 
 # Stocks
-Stock = namedtuple('stock', ['beta', 'share'])
-stocks = {'SPY': [1, .8], 'cash': [0, -0.8]}
+
+stock_betas = dict(VOO=1, cash=0, VB=1.19, VO=1.09)
 ## Asset Allocation
 # TODO beta is going to be calculated seperately in future
 #Security = namedtuple('security', ['expected_value', 'variance', 'beta'])
