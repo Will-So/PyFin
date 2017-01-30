@@ -2,7 +2,7 @@ import pytest
 import sqlite3
 
 from pyfi.pull_data.mint import (mint_login, get_account_details, refresh_accounts,
-                                write_accounts, cursor)
+                                write_accounts, cursor, included_investments)
 from pyfi.config import exclude
 
 
@@ -59,12 +59,38 @@ def test_database_writes(new_cursor):
     :return:
     """
     net_worth, account_details = get_account_details(mint)
-    write_accounts(account_details, exclude=exclude, cursor=new_cursor)
+    write_accounts(account_details,
+                   included_invsetments=included_investments, cursor=new_cursor)
 
     results = new_cursor.execute("""SELECT * FROM mint_accounts""").fetchall()
 
     assert len(results) > 5 # Number of accounts written to.
     assert len(results[1]) == 6 # Number of columns within the results
+
+
+def test_2_database_writes(new_cursor):
+    """
+    Tests that writing twice doesn't cause many problems
+
+    :param new_cursor:
+    :return:
+    """
+    _, account_details = get_account_details(mint)
+
+    write_accounts(account_details,
+                   included_invsetments=included_investments, cursor=new_cursor)
+
+    results = new_cursor.execute("""SELECT * FROM mint_accounts""").fetchall()
+
+    old_length = len(results)
+
+    write_accounts(account_details,
+                   included_invsetments=included_investments, cursor=new_cursor)
+
+    new_results = new_cursor.execute("""SELECT * FROM mint_accounts""").fetchall()
+
+    assert old_length == len(new_results)
+
 
 
 @slow
