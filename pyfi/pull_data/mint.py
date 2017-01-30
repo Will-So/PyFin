@@ -15,7 +15,7 @@ import time
 import arrow
 import sqlite3
 
-from pyfi.config import mint_credentials, exclude, refresh, logger, GENERATE_TEST, db_location
+from pyfi.config import mint_credentials, included_investments, refresh, logger, GENERATE_TEST, db_location
 from pyfi.pull_data.get_mint_cookies import get_session_cookies
 from pyfi.utilities import generate_test_data
 
@@ -46,7 +46,8 @@ def execute_pull():
         generate_test_data(account_details, 'account_details')
 
     logger.info("Successfully retrieved {} accounts".format(len(account_details)))
-    write_accounts(account_details=account_details, exclude=exclude, cursor=cursor)
+    write_accounts(account_details=account_details,
+                   included_investments=included_investments, cursor=cursor)
     logger.info("Finished pulling data from mint")
 
 
@@ -105,7 +106,7 @@ def refresh_accounts(mint):
 
 
 ## TODO: Might want to make this default to no investment accounts
-def write_accounts(account_details, exclude, cursor):
+def write_accounts(account_details, included_invsetments, cursor):
     """
     Writes all account details to database, including the change from the previous time.
 
@@ -118,9 +119,8 @@ def write_accounts(account_details, exclude, cursor):
     today = str(arrow.now().date()) # Don't want to deal with datetime representation
     for account in account_details:
         account_name = account['accountName']
-        if (account_name not in exclude and
-                    account['accountType'] != 'investment'):
-
+        if account_name in included_investments or account['accountType'] != 'investment':
+            # Want to include investments only if they are explicitly allowed for.
             ## Both accountName and accountId are required. accountName is the user readable
             ## but not unique
             account_id = account['accountId']
@@ -157,6 +157,7 @@ def write_accounts(account_details, exclude, cursor):
 
     database.commit()
     database.close()
+
 
 if __name__ == '__main__':
     execute_pull()

@@ -24,6 +24,7 @@ ib_credentials = {'token': 278534427760283813354678, 'flex_id': 225259}
 
 ## Mint accounts to exclude ## fiLoginDisplayName
 exclude = ['Lending Club', 'Interactive Brokers']
+included_investments = ['Will IRA']
 
 # Stocks
 Stock = namedtuple('stock', ['beta', 'share'])
