@@ -17,6 +17,7 @@ import sqlite3
 from collections import defaultdict
 import pandas as pd
 import sys
+from datetime import datetime
 
 today = str(arrow.now().date())
 
@@ -77,13 +78,17 @@ def calculate(connection, assets, investments):
 
     p2p_total = pd.read_sql(most_recent_p2p, connection).account_total.sum()
     net_worth = p2p_total + accounts_receivable + retirement + stocks + debt + cash
-
+    print('here')
     try:
         net_worth_info = cursor.execute(most_recent_net_worth).fetchone()
-        days_between = net_worth_info[0] - today
+        days_between = (datetime.strptime(net_worth_info[0], '%Y-%m-%d') -
+                        datetime.strptime(today, '%Y-%m-%d'))
+        print('here')
+        print(net_worth_info)
         # Only assign a new net_worth if it hasn't happened yet.
         if net_worth_info[0] == today:
-            logger("Net worth already logged today! Not writing again")
+
+            logger.info("Net worth already logged today! Not writing again")
 
             # TODO Check if this is the best way to leave a process
             sys.exit() # At this point, we want to completely stop running the script
@@ -117,7 +122,7 @@ def write_net_worth(values, connection):
     # import pdb; pdb.set_trace()
     df = pd.DataFrame.from_dict(values, orient='index').T
     df.to_sql('net_worth', connection, index=False, if_exists='append')
-    logger("Finished writing to net worth")
+    logger.info("Finished writing to net worth")
 
 
 if __name__ == '__main__':
