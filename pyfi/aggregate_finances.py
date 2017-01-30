@@ -39,6 +39,7 @@ def get_most_recent_assets(connection):
 
     return assets
 
+
 def get_most_recent_investments(connection):
     """
 
@@ -78,15 +79,16 @@ def calculate(connection, assets, investments):
 
     p2p_total = pd.read_sql(most_recent_p2p, connection).account_total.sum()
     net_worth = p2p_total + accounts_receivable + retirement + stocks + debt + cash
-    print('here')
+
     try:
         net_worth_info = cursor.execute(most_recent_net_worth).fetchone()
         days_between = (datetime.strptime(net_worth_info[0], '%Y-%m-%d') -
                         datetime.strptime(today, '%Y-%m-%d'))
-        print('here')
-        print(net_worth_info)
+
+        days_between = days_between.days # from timedelta to int
+
         # Only assign a new net_worth if it hasn't happened yet.
-        if net_worth_info[0] == today:
+        if net_worth_info[0] == today: # Still do this in case less than 24 hours difference but more than 1 day
 
             logger.info("Net worth already logged today! Not writing again")
 
