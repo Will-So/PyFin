@@ -14,10 +14,12 @@ TODO
 import numpy as np
 import pandas as pd
 
-from pyfi.config import (security_properties, target_allocation, royalties,target_monthly_spending,
+from pyfi.config import (securities, target_allocation, royalties,target_monthly_spending,
                      minimum_monthly_spending, guranteed_cash, risk_free_rate)
 
 from pyfi.utilities import calculate_expected_return
+
+asset_mapper =
 
 
 def royalty_returns(royalty):
@@ -39,14 +41,14 @@ def yearly_spend(minimum_monthly_spending, target_monnthly_spending):
 
 
 # TODO: this should be for all, not just lending clu                b
-def lc_returns(security_properties):
+def p2p_returns(security_properties, bc_recovery):
     '''Lending Club returns. handles the case when bankruptcy occurs
     '''
-    if np.random.uniform() > 0.99:
-        # Lending club goes bankrupt with probability .01
+    if np.random.uniform() > 0.995:
+        # Lending club goes bankrupt with probability .005
         if np.random.uniform() > 0.5:
             # Get half back
-            returns = -.5
+            returns = -1 * bc_recovery
         else:
             # Judge Eliminates everything
             returns = -1
@@ -58,23 +60,54 @@ def lc_returns(security_properties):
 
 ## TODO incorporate the expected value of individual securities rather than the entire market
 ## http://quant.stackexchange.com/questions/4589/how-to-simulate-stock-prices-with-a-geometric-brownian-motion
-def stock_returns(stock_e_return, stocks):
+# TODO incorporate randomness around beta
+# TODO want to make a stock handler to deal with the weights properly.
+def stock_returns(benchmark, stocks):
     '''
-    param: stock_e_return The expected value of annual stock returns from now until the end.
+    :param benchmark_returns: The returns that have already been simulated for this year
+    :param stocks: a dictionary of format {stock_name:(beta, weight)}
 
-    return: float: annual return for a single year
+    return: float: dictionary of (percentage) returns for each individual security as well as its weight
 
-    Uses a normal distribution
+    Notes
+    --
+    - Uses a normal distribution to generate a random deviation between the current beta
+        and the actual beta.
+
     '''
-    market_return = np.random.normal(stock_e_return, 0.12)
+    benchmark_returns = calculate_benchmark_returns(benchmark)
+
+    returns = {}
     for stock in stocks:
-        stock
+        returns[stock] = (np.random.normal(benchmark_returns * stocks[stock][0], 0.02),
+                          stocks[stock][1])
+
+    return returns
+
+
+def calculate_benchmark_returns(benchmark):
+    """
+    Calculate the returns of a benchmark that all other stock
+
+
+    :return:
+    """
+    benchmark_return = np.random.normal(benchmark.expected_value,
+                                        benchmark.variance)
+
+    return benchmark_return
 
 
 
-def sim_year(starting_amount, guranteed_cash, royalties, security_properties ):
+def sim_year(starting_amount, assets ):
     """I do this with a single simulation rather than 1000 at once.
     Rather the simulations will be done at the year level.
+
+    :param starting_amount:
+    :param guranteed_cash:
+    :param securities:
+
+    :return:
     """
     simulations = pd.DataFrame()
     stock_cash = stock_returns() * (starting_amount * stock_share)
@@ -83,7 +116,13 @@ def sim_year(starting_amount, guranteed_cash, royalties, security_properties ):
 
     guranteed_cash = sum(guranteed_cash.values())
 
-    for royality in royalty_cash:
+    benchmark_return = calculate_benchmark_returns(benchmark=)
+
+    returns =
+    for asset in assets:
+
+
+
 
 
     change = (royalty_cash + stock_cash +
@@ -100,6 +139,8 @@ def sim_year(starting_amount, guranteed_cash, royalties, security_properties ):
                            'left']
     simulations = simulations.set_index('simulation')
     return simulations
+
+
 
 if __name__ == '__main__':
 
