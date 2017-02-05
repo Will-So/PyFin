@@ -14,6 +14,7 @@ import pandas as pd
 import sqlite3
 import arrow
 import time
+from retry import retry
 
 from pyfi.config import ib_credentials, db_location, logger
 
@@ -33,11 +34,12 @@ def get_xml_report(ib_credentials):
     'Service.GetStatement?q={REFERENCE_CODE}&t={TOKEN}&v=3'.format(REFERENCE_CODE=report_id,
                                                               TOKEN=ib_credentials['token']))
 
-    time.sleep(2) # Sometimes the data isn't pulled quickly enough
+    #time.sleep(2) # Sometimes the data isn't pulled quickly enough
 
     return get_data.text
 
 
+@retry(tries=5, delay=5)
 def parse_xml(xml_data):
     '''
     Given raw XML data, get all of the most important data from it.
