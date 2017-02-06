@@ -34,11 +34,18 @@ stock_betas = dict(VOO=1, cash=0, VB=1.19, VO=1.09, lc=.2, prosper=.1)
 # TODO beta is going to be calculated seperately in future
 #Security = namedtuple('security', ['expected_value', 'variance', 'beta'])
 
-Security = namedtuple('security', ['expected_value', 'variance'])
+asset = namedtuple('security', ['expected_value', 'variance', 'beta'])
+
+# Contains the expected annual return as well as the expected beta
+# For each of the assets we are considering.
+# TODO all of this needs to be changed. Need to be able to get stock betas
+# Also not sure if this is the best data structure.
+assets = {'lending_club': asset(.07, .03, 0.2), 'VB': asset(.07, .30, 1.19),
+                    'VOO': asset(.07, .12, 1), 'VO': asset(.07 * 1.19, .20, 1.09),
+                    'prosper': asset(.075, .03, 0.2), 'real_estate': asset(.04, .05, 0.2)}
 
 
-security_properties = {'lending_club': Security(.07, .03), 'stock_market': Security(.07, .12),
-                    'prosper': (.075, .03), 'real_estate': (.04, .05)}
+# Asset should have
 
 target_allocation = {'lending_club': .666, 'resl_estate': 0, 'prosper':0}
 
@@ -55,8 +62,10 @@ target_cash = monthly_budget * 2
 
 '''
 These are assets whose returns can't go below 0 but do have a certain amount of uncertainty
+
+These are also special because they are monetary payments rather than actual payments.
 '''
-royalties = {'oil': Security(1500, 500)}
+royalties = {'oil': asset(1500, 500, 0)}
 
 ## Some assets will have completely fixed returns. In this case,
 ## they should be stored in this dict.
@@ -93,8 +102,8 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 # Also move all loggers to stdout. Can be useful for dev
-stdout_hadnerl = logging.StreamHandler(sys.stdout)
-logger.addHandler(stdout_hadnerl)
+stdout_handler = logging.StreamHandler(sys.stdout)
+logger.addHandler(stdout_handler)
 
 
 ## Lending Club
