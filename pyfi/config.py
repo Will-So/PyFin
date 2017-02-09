@@ -65,12 +65,22 @@ These are assets whose returns can't go below 0 but do have a certain amount of 
 
 These are also special because they are monetary payments rather than actual payments.
 '''
-royalties = {'oil': asset(1500, 500, 0)}
+payments = {'oil': asset(1500, 500, 0), 'social_security': asset(2500, 0, 0)}
 
-## Some assets will have completely fixed returns. In this case,
-## they should be stored in this dict.
-guranteed_cash = {'social_security': 3500}
 
+"""
+The following values should be set up by the user and represent their general behavior.
+
+For the financial advisor, a good way to phrase this is:
+    1) In a given month how much do you usually spend?
+    2) What is the least you've spent in a given month assuming all normal Fixed expenses (e.g., mortgage)
+    3) How many times in a month do you spend more than `target_monthly_spending` * 1.68
+
+From those values
+
+"""
+
+# TODO Might want to have unexpected spending as well
 minimum_monthly_spending = 2500
 target_monthly_spending = 3500
 monthly_spending_standard_deviation = .12
@@ -82,7 +92,7 @@ monthly_spending_standard_deviation = .12
 # https://fred.stlouisfed.org/series/DTB3
 '''
 
-risk_free_rate = .052
+risk_free_rate = .0052 # Rate of the three month bond
 
 # Setup logging for entire project
 logger = logging.getLogger(__name__)

@@ -14,17 +14,22 @@ TODO
 import numpy as np
 import pandas as pd
 
-from pyfi.config import (securities, target_allocation, royalties,target_monthly_spending,
-                     minimum_monthly_spending, guranteed_cash, risk_free_rate)
+from pyfi.config import (assets, target_allocation, payments, target_monthly_spending,
+                         minimum_monthly_spending, risk_free_rate)
 
 from pyfi.utilities import calculate_expected_return
 
-asset_mapper =
+def _main():
+    """
+    Main driver for simulating code.
+
+    :return:
+    """
 
 
 def royalty_returns(royalty):
     # Royalties can;t go below 0
-    return max(np.random.normal(royalties[royalty].expected_value, royalties[royalty].variance), 0)
+    return max(np.random.normal(payments[royalty].expected_value, payments[royalty].variance), 0)
 
 
 def yearly_spend(minimum_monthly_spending, target_monnthly_spending):
@@ -140,7 +145,9 @@ def sim_year(starting_amount, assets ):
     simulations = simulations.set_index('simulation')
     return simulations
 
+asset_mapper = {'stocks': stock_returns, 'p2p': p2p_returns}
 
 
 if __name__ == '__main__':
+    _main()
 

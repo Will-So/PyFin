@@ -106,7 +106,7 @@ def refresh_accounts(mint):
 
 
 ## TODO: Might want to make this default to no investment accounts
-def write_accounts(account_details, included_invsetments, cursor):
+def write_accounts(account_details, included_investments, cursor):
     """
     Writes all account details to database, including the change from the previous time.
 
