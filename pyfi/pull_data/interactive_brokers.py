@@ -21,8 +21,14 @@ from pyfi.config import ib_credentials, db_location, logger
 today = str(arrow.now().date())
 
 
+@retry(tries=5, delay=20)
 def get_xml_report(ib_credentials):
-    # import pdb; pdb.set_trace()
+    """
+    Generates the XML report
+
+    :param ib_credentials:
+    :return:
+    """
     generate_report = requests.get('https://gdcdyn.interactivebrokers.com/Universal/servlet/FlexStatementService'
                                                 '.SendRequest?t={TOKEN}&q={QUERY_ID}&v=3'.format(TOKEN=ib_credentials['token'],
                                                 QUERY_ID=ib_credentials['flex_id']))
@@ -34,12 +40,12 @@ def get_xml_report(ib_credentials):
     'Service.GetStatement?q={REFERENCE_CODE}&t={TOKEN}&v=3'.format(REFERENCE_CODE=report_id,
                                                               TOKEN=ib_credentials['token']))
 
-    #time.sleep(2) # Sometimes the data isn't pulled quickly enough
+    if not get_data:
+        raise ValueError # Forces retry yet again
 
     return get_data.text
 
 
-@retry(tries=5, delay=5)
 def parse_xml(xml_data):
     '''
     Given raw XML data, get all of the most important data from it.
@@ -52,7 +58,6 @@ def parse_xml(xml_data):
 
     # Get the details of the current positions
     position_details = {}
-    #import pdb; pdb.set_trace()
     positions = root['FlexStatements']['FlexStatement'].OpenPositions
     for child in positions.getchildren():
         child = dict(child.attrib)
@@ -87,8 +92,9 @@ def parse_xml(xml_data):
 
 def write_data(df, connection):
     '''
+    Writes dataframe to database
 
-    :param df:
+    :param df: Dataframe with all IB data
     :return:
     '''
     cursor = connection.cursor()
