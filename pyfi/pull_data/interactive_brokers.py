@@ -28,7 +28,7 @@ def _main():
     write_data(processed_data, sqlite3.connect(db_location))
 
 
-@retry(tries=5, delay=20)
+@retry(tries=5, delay=10)
 def get_xml_report(ib_credentials):
     """
     Generates the XML report
@@ -47,9 +47,11 @@ def get_xml_report(ib_credentials):
     'Service.GetStatement?q={REFERENCE_CODE}&t={TOKEN}&v=3'.format(REFERENCE_CODE=report_id,
                                                               TOKEN=ib_credentials['token']))
 
-    if not get_data.text:
-        # TODO still need to make sure this works (only can do once a day)
-        raise ValueError # Forces retry yet again
+    print(get_data.text)
+    if get_data.text in "ErrorCode":
+        # TODO still need to make sure this works
+        print("Here")
+        raise ValueError('Statement generation in progress. Please try again shortly.') # Forces retry yet again
     return get_data.text
 
 
