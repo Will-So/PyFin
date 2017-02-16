@@ -13,12 +13,19 @@ from lxml import objectify
 import pandas as pd
 import sqlite3
 import arrow
-import time
 from retry import retry
+import sys
 
 from pyfi.config import ib_credentials, db_location, logger
 
 today = str(arrow.now().date())
+
+
+def _main():
+    xml_data = get_xml_report(ib_credentials)
+    processed_data = parse_xml(xml_data)
+    print(processed_data)
+    write_data(processed_data, sqlite3.connect(db_location))
 
 
 @retry(tries=5, delay=20)
@@ -40,9 +47,9 @@ def get_xml_report(ib_credentials):
     'Service.GetStatement?q={REFERENCE_CODE}&t={TOKEN}&v=3'.format(REFERENCE_CODE=report_id,
                                                               TOKEN=ib_credentials['token']))
 
-    if not get_data:
+    if not get_data.text:
+        # TODO still need to make sure this works (only can do once a day)
         raise ValueError # Forces retry yet again
-
     return get_data.text
 
 
@@ -112,7 +119,5 @@ def write_data(df, connection):
 
 
 if __name__ == '__main__':
-    xml_data = get_xml_report(ib_credentials)
-    processed_data = parse_xml(xml_data)
-    print(processed_data)
-    write_data(processed_data, sqlite3.connect(db_location))
+    sys.exit(_main())
+
