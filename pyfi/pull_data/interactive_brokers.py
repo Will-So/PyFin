@@ -47,8 +47,8 @@ def get_xml_report(ib_credentials):
     'Service.GetStatement?q={REFERENCE_CODE}&t={TOKEN}&v=3'.format(REFERENCE_CODE=report_id,
                                                               TOKEN=ib_credentials['token']))
 
-    print(get_data.text)
-    if get_data.text in "ErrorCode":
+    #print(get_data.text)
+    if "ErrorCode" in get_data.text:
         # TODO still need to make sure this works
         print("Here")
         raise ValueError('Statement generation in progress. Please try again shortly.') # Forces retry yet again
