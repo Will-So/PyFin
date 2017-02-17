@@ -28,7 +28,7 @@ def _main():
     write_data(processed_data, sqlite3.connect(db_location))
 
 
-@retry(tries=5, delay=10)
+@retry(tries=5, delay=30)
 def get_xml_report(ib_credentials):
     """
     Generates the XML report
@@ -49,9 +49,8 @@ def get_xml_report(ib_credentials):
 
     #print(get_data.text)
     if "ErrorCode" in get_data.text:
-        # TODO still need to make sure this works
-        print("Here")
-        raise ValueError('Statement generation in progress. Please try again shortly.') # Forces retry yet again
+        logger.info("Data pulled failed. Retrying; this is normal as it takes time for for the flex query to be generated")
+        raise ValueError(get_data.text) # Forces retry yet again
     return get_data.text
 
 
