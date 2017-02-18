@@ -11,13 +11,13 @@ Notes
 """
 
 
-most_recent_mint_accounts = """select * from mint_accounts where date == date('now')
+most_recent_mint_accounts = """select * from mint_accounts where date == date('now', 'localtime')
 """
 
-most_recent_p2p = """select * from p2p_accounts where date == date('now')
+most_recent_p2p = """select * from p2p_accounts where date == date('now', 'localtime')
 """
 
-most_recent_stocks = """select * from stock_accounts where date == date('now')
+most_recent_stocks = """select * from stock_accounts where date == date('now', 'localtime')
 """
 most_recent_accounts_pending = """select * from pending_payments where resolved = 0"""
 
