@@ -29,7 +29,7 @@ def pull_account_status(lc_config):
     r = requests.get('https://api.lendingclub.com/api/investor/{version}/accounts/{investor_id}/summary/'.format(
         version='v1', investor_id=main_config['investor_id']), headers=headers)
 
-    assert r.status_code == 200
+    assert r.status_code == 200, "LC API Pull failed"
 
     summary = r.json()
 

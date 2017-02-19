@@ -51,6 +51,8 @@ def get_xml_report(ib_credentials):
     if "ErrorCode" in get_data.text:
         logger.info("Data pulled failed. Retrying; this is normal as it takes time for for the flex query to be generated")
         raise ValueError(get_data.text) # Forces retry yet again
+
+    logger.info("Successfully retrieved XML report from Interactive brokers")
     return get_data.text
 
 
@@ -93,6 +95,7 @@ def parse_xml(xml_data):
 
     for key in equity:
         if key not in ['totalLong', 'cash', 'total']:  # total is the balance
+            logger.info("Removing {} from xml report".format(equity[key]))
             del equity[key]
 
     return pd.DataFrame(position_details).T # by default the symbol is a column
@@ -116,6 +119,7 @@ def write_data(df, connection):
     if previous_info and previous_info[0] == today:
         logger.info("Already logged to stocks_today; not writing results to df.")
     else:
+        logger.info("Writing to stock_accounts")
         df.to_sql('stock_accounts', connection, if_exists='append', index=True, index_label='symbol')
 
 
