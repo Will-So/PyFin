@@ -1,9 +1,10 @@
 import pickle
-from yahoo_finance import Share,  YQLResponseMalformedError
+from yahoo_finance import Share, YQLResponseMalformedError
 import arrow
 import sqlite3
+import pandas as pd
 
-from pyfi.config import db_location
+from pyfi.config import db_location, assets, logger
 
 
 def get_yearly_prices(securities):
@@ -11,17 +12,18 @@ def get_yearly_prices(securities):
     Gets the prices
 
     :param securities: ['VO', 'VB', 'VOO']
-    :return: List of historical prices by year
+    :return: datafarme of prices with dates.
 
     Example
     ---
-    >>> get_yearly_prices(['VO', 'VB', 'VOO'])
-    {('VB', '2013-02-19'): '87.400002',
-     ('VB', '2014-02-19'): '111.209999',
-     ('VB', '2015-02-19'): '121.010002',
-     ('VB', '2016-02-19'): '100.440002',
-     ...
-     ('VOO', '2017-02-19'): '215.84'}}
+    >>> df = get_yearly_prices(['VO', 'VB', 'VOO', 'SPY'])
+    >>> print(df)
+    symbol        date       price
+    0      VB  2013-02-19   88.959999
+    1      VB  2010-02-19   58.439999
+    2      VO  2008-02-19   70.410004
+    3     SPY  1993-02-19     43.5625
+    4      VB  2009-02-19   35.720001
 
     Notes
     ---
@@ -47,10 +49,15 @@ def get_yearly_prices(securities):
                 date = date.replace(years=-1)
 
             except YQLResponseMalformedError:
-                print("Last available entry for {} at {}".format(security, str(date.date())))
+                logger.info("Last available entry for {} at {}".format(security, str(date.date())))
                 break
 
-    return prices
+    df = pd.DataFrame.from_dict(prices, orient='index')
+    df.index = pd.MultiIndex.from_tuples(df.index)
+    df = df.reset_index()
+    df = df.rename(columns={'level_0': 'symbol', 'level_1': 'date', 0: 'price'})
+
+    return df
 
 
 def correlation_matrix(**securities):
@@ -104,9 +111,12 @@ def save_yearly_prices(connection):
     :return:
     """
 
-def get_and_save_stock_prices():
+def get_and_save_stock_prices(securities):
     """
 
     :return:
     """
     connection = sqlite3.connect(db_location)
+    stocks = [symbol for symbol in assets if assets[symbol].type == 'stock']
+    prices = get_yearly_prices(stocks)
+    df.to_sql
