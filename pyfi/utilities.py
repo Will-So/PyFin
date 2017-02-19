@@ -3,6 +3,7 @@ from yahoo_finance import Share, YQLResponseMalformedError
 import arrow
 import sqlite3
 import pandas as pd
+import sys
 
 from pyfi.config import db_location, assets, logger
 
@@ -118,5 +119,11 @@ def get_and_save_stock_prices(securities):
     """
     connection = sqlite3.connect(db_location)
     stocks = [symbol for symbol in assets if assets[symbol].type == 'stock']
+    stocks.append('SPY')  # This is the benchmark price. Makes more sense to run this one than VOO because it has a longer history
     prices = get_yearly_prices(stocks)
-    df.to_sql
+    prices.to_sql('historical_stocks', connection, index=False,
+          if_exists='replace')
+
+
+if __name__ == '__main__':
+    sys.exit(get_and_save_stock_prices(assets))
