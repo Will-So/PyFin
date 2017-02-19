@@ -14,6 +14,7 @@ import mintapi
 import time
 import arrow
 import sqlite3
+from retry import retry
 
 from pyfi.config import mint_credentials, included_investments, refresh, logger, GENERATE_TEST, db_location
 from pyfi.pull_data.get_mint_cookies import get_session_cookies
@@ -31,7 +32,7 @@ def execute_pull():
     """
     Main execution logic for pulling data from mint
 
-    :return:
+    :return: Writes to database
     """
     mint = mint_login(cursor)
     logger.info("Login successful")
@@ -77,7 +78,11 @@ def mint_login(cursor):
         database.commit()
         database.close()
 
-    return mintapi.Mint(mint_credentials[0], mint_credentials[1], ius, thx)
+    try:
+        return mintapi.Mint(mint_credentials[0], mint_credentials[1], ius, thx)
+    except IOError: # Handles case when session expires
+        return mintapi.Mint(mint_credentials[0], mint_credentials[1])
+
 
 
 # TODO: Not all of the accounts that are listed here are relevant. Deal with this in future
@@ -106,6 +111,7 @@ def refresh_accounts(mint):
 
 
 ## TODO: Might want to make this default to no investment accounts
+@retry(tries=3, delay=5)
 def write_accounts(account_details, included_investments, cursor):
     """
     Writes all account details to database, including the change from the previous time.
