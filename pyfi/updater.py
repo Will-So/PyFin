@@ -8,6 +8,7 @@ from pyfi.pull_data.historical_stocks import get_and_save_stock_prices
 from pyfi.pull_data.lending_club import pull_lending_club
 from pyfi.pull_data.interactive_brokers import _main as pull_interactive_brokers
 from pyfi.pull_data.mint import execute_pull as pull_mint
+from pyfi.aggregate_finances import _main as aggregate_finances
 
 
 def check_stocks():
@@ -35,6 +36,7 @@ def daily_update():
     pull_lending_club(main_config, connection)
     pull_interactive_brokers()
     pull_mint()
+    aggregate_finances()
 
 
 if __name__ == '__main__':
