@@ -5,6 +5,7 @@ tested against.
 TODO
 ---
     - Use Security for the expected returns as well.
+    - If a stock is added to `assets`, it should automatically trigger rerunning the file
 """
 from collections import namedtuple
 import os
@@ -34,15 +35,26 @@ stock_betas = dict(VOO=1, cash=0, VB=1.19, VO=1.09, lc=.2, prosper=.1)
 # TODO beta is going to be calculated seperately in future
 #Security = namedtuple('security', ['expected_value', 'variance', 'beta'])
 
-asset = namedtuple('security', ['expected_value', 'variance', 'beta'])
+
+"""
+Type can be one of three things:
+1) stock
+2) p2p
+3) other -- this can be things like real estate
+4) payment -- a type of asset that doesn't have an underlying amount of capital.
+    - Social Security
+    - Royalty Payments
+"""
+
+asset = namedtuple('security', ['expected_value', 'variance', 'beta', 'type'])
 
 # Contains the expected annual return as well as the expected beta
 # For each of the assets we are considering.
 # TODO all of this needs to be changed. Need to be able to get stock betas
 # Also not sure if this is the best data structure.
-assets = {'lending_club': asset(.07, .03, 0.2), 'VB': asset(.07, .30, 1.19),
-                    'VOO': asset(.07, .12, 1), 'VO': asset(.07 * 1.19, .20, 1.09),
-                    'prosper': asset(.075, .03, 0.2), 'real_estate': asset(.04, .05, 0.2)}
+assets = {'lending_club': asset(.07, .03, 0.2, 'p2p'), 'VB': asset(.07, .30, 1.19, 'stock'),
+          'VOO': asset(.07, .12, 1, 'stock'), 'VO': asset(.07 * 1.19, .20, 1.09, 'stock'),
+          'prosper': asset(.075, .03, 0.2, 'p2p'), 'real_estate': asset(.04, .05, 0.2, 'other')}
 
 
 # Asset should have
@@ -65,7 +77,7 @@ These are assets whose returns can't go below 0 but do have a certain amount of 
 
 These are also special because they are monetary payments rather than actual payments.
 '''
-payments = {'oil': asset(1500, 500, 0), 'social_security': asset(2500, 0, 0)}
+payments = {'oil': asset(1500, 500, 0, 'payment'), 'social_security': asset(2500, 0, 0, 'payment')}
 
 
 """
