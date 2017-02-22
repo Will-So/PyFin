@@ -2,7 +2,7 @@
 Orchastrates the daily updates and checks to make sure all historical data from stocks is still there.
 """
 import sqlite3
-from pyfi.config import assets, db_location, main_config
+from pyfi.config import assets, db_location, main_config, logger
 
 from pyfi.pull_data.historical_stocks import get_and_save_stock_prices
 from pyfi.pull_data.lending_club import pull_lending_club
@@ -33,8 +33,11 @@ def check_stocks():
 
 def daily_update():
     connection = sqlite3.connect(db_location)
+    logger.info("Pulling Lending Club Data")
     pull_lending_club(main_config, connection)
+    logger.info("Pulling Interactive Brokers data")
     pull_interactive_brokers()
+    logger.info("Pulling Mint Data")
     pull_mint()
     aggregate_finances()
 
