@@ -16,17 +16,22 @@ def check_stocks():
     Updating this data is only required when we add a symbol.
     :return:
     """
-    current_stocks = [stock for stock in assets if type == 'stock']
+    current_stocks = [stock for stock in assets if assets[stock].type == 'stock']
+    # TODO might want to add SPY to the assets list
+    current_stocks.append('SPY') # This is always going to be there because it is a benchmark.
+
 
     # Get old Stocks
     cursor = sqlite3.connect(db_location).cursor()
     old_stocks = cursor.execute('SELECT DISTINCT(symbol) from historical_stocks').fetchall()
+    old_stocks = [stock[0] for stock in old_stocks] # Silly way fetchall returns things.
 
     old_stocks, current_stocks = set(old_stocks), set(current_stocks)
 
-    if current_stocks ^ old_stocks:
-        # Save stock prices to the new database
+    if current_stocks ^ old_stocks: # XOR (any difference between the two stocks)
         get_and_save_stock_prices(assets)
+    else:
+        logger.info("No changes in securities held. Not updating stocks")
 
     cursor.close()
 
