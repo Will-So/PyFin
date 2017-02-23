@@ -6,15 +6,12 @@ import sqlite3
 
 from pyfi.config import logger, db_location, assets
 
-if __name__ == '__main__':
-    sys.exit(get_and_save_stock_prices(assets))
 
-
-def get_and_save_stock_prices(securities):
+def get_and_save_stock_prices(assets):
     """
-    Gets stock
+    Control logic for entire script; gets stock historical prices and then saves it to sql
 
-    :return:
+    :return: writes to `historical_stocks`
     """
     connection = sqlite3.connect(db_location)
     stocks = [symbol for symbol in assets if assets[symbol].type == 'stock']
@@ -72,3 +69,6 @@ def get_yearly_prices(securities):
     df = df.rename(columns={'level_0': 'symbol', 'level_1': 'date', 0: 'price'})
 
     return df
+
+if __name__ == '__main__':
+    sys.exit(get_and_save_stock_prices(assets))
