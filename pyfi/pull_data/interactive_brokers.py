@@ -28,13 +28,18 @@ def _main():
     write_data(processed_data, sqlite3.connect(db_location))
 
 
-@retry(tries=5, delay=30)
+@retry(tries=10, delay=30)
 def get_xml_report(ib_credentials):
     """
     Generates the XML report
 
     :param ib_credentials:
     :return:
+
+    Notes
+    --
+    - retry doesn't work all the time. If IB servers are full, it will take more than 2.5 minutes to
+    complete everything
     """
     generate_report = requests.get('https://gdcdyn.interactivebrokers.com/Universal/servlet/FlexStatementService'
                                                 '.SendRequest?t={TOKEN}&q={QUERY_ID}&v=3'.format(TOKEN=ib_credentials['token'],
@@ -47,7 +52,6 @@ def get_xml_report(ib_credentials):
     'Service.GetStatement?q={REFERENCE_CODE}&t={TOKEN}&v=3'.format(REFERENCE_CODE=report_id,
                                                               TOKEN=ib_credentials['token']))
 
-    #print(get_data.text)
     if "ErrorCode" in get_data.text:
         logger.info("Data pulled failed. Retrying; this is normal as it takes time for for the flex query to be generated")
         raise ValueError(get_data.text) # Forces retry yet again
