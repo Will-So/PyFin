@@ -11,7 +11,12 @@ import sqlite3
 def get_session_cookies(username, password):
     '''
     Function pulled from mintiapi.api; original version defined in a class
-    and required a `self` argument.
+    and required a `self` argument. This version also saves the data into a database so it doesn't have
+    to be done each time.
+
+    :param username: Mint username
+    :param password: Mint password
+    :return: ius_session, and thx_guid in string form; also writes to database
     '''
     try:
         from selenium import webdriver
@@ -49,7 +54,7 @@ def get_session_cookies(username, password):
         cursor.close()
         logger.info("Wrote cookies to database")
 
-        return values
+        return values['ius_session'], values['thx_guid']
 
     finally:
         driver.close()

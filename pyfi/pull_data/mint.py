@@ -52,6 +52,7 @@ def execute_pull():
     logger.info("Finished pulling data from mint")
 
 
+# TODO; test is refactor works; rething logic into
 def mint_login(cursor):
     """
     Does the initial login to Mint. Will open a web browser and have the user login if 2FA is
@@ -61,7 +62,7 @@ def mint_login(cursor):
     :return:
     """
     # Order by name to insure that ius comes before thx.
-    cookies = cursor.execute('''SELECT * from credentials
+    cookies = cursor.execute('''SELECT name, value from credentials
                                 WHERE name in ('mint_ius', 'mint_thx')
                                 ORDER BY name ASC''').fetchall()
 
@@ -71,7 +72,7 @@ def mint_login(cursor):
     else:
         ## Get the cookies by opening up selenium. If 2FA is enabled,
         ##  the user will be required to enter it in.
-        values = get_session_cookies(mint_credentials[0], mint_credentials[1])
+        ius, thx = get_session_cookies(mint_credentials[0], mint_credentials[1])
 
 
     try:
