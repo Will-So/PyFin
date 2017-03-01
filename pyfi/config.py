@@ -46,17 +46,19 @@ Type can be one of three things:
     - Royalty Payments
 """
 
-asset = namedtuple('security', ['expected_value', 'variance', 'beta', 'type'])
-
 # Contains the expected annual return as well as the expected beta
 # For each of the assets we are considering.
 # TODO all of this needs to be changed. Need to be able to get stock betas
 # Also not sure if this is the best data structure.
-assets = {'lending_club': asset(.07, .03, 0.2, 'p2p'), 'VB': asset(.07, .30, 1.19, 'stock'),
-          'VOO': asset(.07, .12, 1, 'stock'), 'VO': asset(.07 * 1.19, .20, 1.09, 'stock'),
-          'prosper': asset(.075, .03, 0.2, 'p2p'), 'real_estate': asset(.04, .05, 0.2, 'other')}
 
 
+assets = {}
+assets['lending_club'] = dict(expected_value=.07, variance=.03, beta=.2, type='p2p')
+assets['VB'] =  dict(expected_value=.07, variance=.30, beta=1.19, type='stock')
+assets['VOO' ] = dict(expected_value=.07 * 1.3, variance=.12, beta=1, type='stock')
+assets['VO'] = dict(expected_value=.07 * 1.20, variance=.20, beta=.20, type='stock')
+assets['prosper'] =  dict(expected_value=.075, variance=.03, beta=.2, type='p2p')
+assets['real_estate'] = dict(expected_value=.04, variance=.05, beta=.2, type='other')
 # Asset should have
 
 target_allocation = {'lending_club': .666, 'resl_estate': 0, 'prosper':0}
@@ -77,8 +79,13 @@ These are assets whose returns can't go below 0 but do have a certain amount of 
 
 These are also special because they are monetary payments rather than actual payments.
 '''
-payments = {'oil': asset(1500, 500, 0, 'payment'), 'social_security': asset(2500, 0, 0, 'payment')}
+payments = {'oil': asset(1500, 500, 0, 'payment'), 'social_security': asset(2762, 0, 0, 'payment')}
+assets['oil']= dict(expected_value = 1500, variance=500, beta=0, type='payment')
+assets['social_security'] = dict(expected_value = 2762, variance=0, beta=0, type='payment')
 
+for asset in assets:
+    keys = assets[asset]
+    assert all(('variance', 'expected_value', 'beta', 'type') ) in keys
 
 """
 The following values should be set up by the user and represent their general behavior.
