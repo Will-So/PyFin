@@ -72,16 +72,15 @@ def mint_login(cursor):
         ## Get the cookies by opening up selenium. If 2FA is enabled,
         ##  the user will be required to enter it in.
         values = get_session_cookies(mint_credentials[0], mint_credentials[1])
-        ius, thx = values['ius_session'], values['thx_guid']
-        cursor.execute("""INSERT INTO credentials values ('mint_ius', ?)""", (ius, ))
-        cursor.execute("""INSERT INTO credentials values ('mint_thx', ?)""", (thx, ))
-        database.commit()
-        database.close()
+
 
     try:
         return mintapi.Mint(mint_credentials[0], mint_credentials[1], ius, thx)
     except IOError: # Handles case when session expires
-        return mintapi.Mint(mint_credentials[0], mint_credentials[1])
+        logger.info("Session Failed")
+        values = get_session_cookies(mint_credentials[0], mint_credentials[1])
+        return mintapi.Mint(mint_credentials[0], mint_credentials[1], values['ius_session'], values['thx_guid'])
+
 
 
 

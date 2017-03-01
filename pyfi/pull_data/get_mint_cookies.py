@@ -4,6 +4,8 @@ This will be an adaptation of the code in `mintapi` that opens selenium and star
 If my PR isn't merged, I may just write the class here instead.
 '''
 import time
+from pyfi.config import db_location, logger
+import sqlite3
 
 
 def get_session_cookies(username, password):
@@ -34,10 +36,21 @@ def get_session_cookies(username, password):
         time.sleep(1)
 
     try:
-        return {
+
+        values = {
             'ius_session': driver.get_cookie('ius_session')['value'],
             'thx_guid': driver.get_cookie('thx_guid')['value']
         }
+        cursor = sqlite3.connect(db_location)
+        ius, thx = values['ius_session'], values['thx_guid']
+        cursor.execute("""INSERT INTO credentials values ('mint_ius', ?)""", (ius,))
+        cursor.execute("""INSERT INTO credentials values ('mint_thx', ?)""", (thx,))
+        cursor.commit()
+        cursor.close()
+        logger.info("Wrote cookies to database")
+
+        return values
+
     finally:
         driver.close()
 
