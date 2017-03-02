@@ -10,9 +10,12 @@ Notes
     - If this starts causing problems just implement that
 """
 
-
 most_recent_mint_accounts = """select * from mint_accounts where date == date('now', 'localtime')
 """
+
+# Excludes investments retrived from MINT
+most_recent_mint_cash_and_debts = """SELECT * From mint_accounts where date == date('now', 'localtime') AND
+                                      account_type in ('bank', 'credit')"""
 
 most_recent_p2p = """select * from p2p_accounts where date == date('now', 'localtime')
 """
