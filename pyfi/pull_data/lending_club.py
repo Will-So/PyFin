@@ -71,7 +71,7 @@ def write_summary(previous_info, today, df, connection):
     df.to_sql('p2p_accounts', connection, if_exists='append', index=False)
 
 
-def handle_account(config, conn):
+def pull_lending_club(config, conn):
     """
     Retrieves data for a lending club account and writes to database.
 
@@ -97,5 +97,5 @@ def handle_account(config, conn):
 
 
 if __name__ == '__main__':
-    handle_account(main_config, connection)
+    sys.exit(pull_lending_club(main_config, connection))
 

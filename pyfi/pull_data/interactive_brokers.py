@@ -34,7 +34,7 @@ def get_xml_report(ib_credentials):
     Generates the XML report
 
     :param ib_credentials:
-    :return:
+    :return: The text of the response
 
     Notes
     --
@@ -54,6 +54,7 @@ def get_xml_report(ib_credentials):
 
     if "ErrorCode" in get_data.text:
         logger.info("Data pulled failed. Retrying; this is normal as it takes time for for the flex query to be generated")
+        logger.info(get_data.text)
         raise ValueError(get_data.text) # Forces retry yet again
 
     logger.info("Successfully retrieved XML report from Interactive brokers")

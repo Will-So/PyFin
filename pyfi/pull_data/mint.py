@@ -59,7 +59,7 @@ def mint_login(cursor):
         enabled.
 
     :param cursor: Pointer to the database login
-    :return:
+    :return: Fully authenticated mintapi session
     """
     # Order by name to insure that ius comes before thx.
     cookies = cursor.execute('''SELECT name, value from credentials

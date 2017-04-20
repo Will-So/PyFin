@@ -28,14 +28,8 @@ ib_credentials = {'token': 278534427760283813354678, 'flex_id': 225259}
 exclude = ['Lending Club', 'Interactive Brokers']
 included_investments = ['Will IRA']
 
-# Asset Correlations
-stock_betas = dict(VOO=1, cash=0, VB=1.19, VO=1.09, lc=.2, prosper=.1)
 
 ## Asset Allocation
-# TODO beta is going to be calculated seperately in future
-#Security = namedtuple('security', ['expected_value', 'variance', 'beta'])
-
-
 """
 Type can be one of three things:
 1) stock
@@ -46,19 +40,15 @@ Type can be one of three things:
     - Royalty Payments
 """
 
-# Contains the expected annual return as well as the expected beta
-# For each of the assets we are considering.
-# TODO all of this needs to be changed. Need to be able to get stock betas
-# Also not sure if this is the best data structure.
-
-
+# This is the initial initilization. Later, `amount` will be appendded onto the asset.
 assets = {}
-assets['lending_club'] = dict(expected_value=.07, variance=.03, beta=.2, type='p2p')
-assets['VB'] =  dict(expected_value=.07, variance=.30, beta=1.19, type='stock')
-assets['VOO' ] = dict(expected_value=.07 * 1.3, variance=.12, beta=1, type='stock')
-assets['VO'] = dict(expected_value=.07 * 1.20, variance=.20, beta=.20, type='stock')
-assets['prosper'] =  dict(expected_value=.075, variance=.03, beta=.2, type='p2p')
-assets['real_estate'] = dict(expected_value=.04, variance=.05, beta=.2, type='other')
+assets['lending_club'] = dict(expected_returns=.07, variance=.03, beta=.2, type='p2p')
+assets['VB'] =  dict(expected_returns=.07, variance=.30, beta=1.19, type='stock')
+assets['VOO' ] = dict(expected_returns=.07 * 1.3, variance=.12, beta=1, type='stock')
+assets['VO'] = dict(expected_returns=.07 * 1.20, variance=.20, beta=.20, type='stock')
+assets['prosper'] =  dict(expected_returns=.075, variance=.03, beta=.2, type='p2p')
+assets['real_estate'] = dict(expected_returns=.04, variance=.05, beta=.2, type='other')
+assets['net_cash'] = dict(expected_returns=0, variance=0, beta=0, type='other') # I don't think I need to store net cash here actually.
 # Asset should have
 
 target_allocation = {'lending_club': .666, 'resl_estate': 0, 'prosper':0}
@@ -79,13 +69,13 @@ These are assets whose returns can't go below 0 but do have a certain amount of 
 
 These are also special because they are monetary payments rather than actual payments.
 '''
-payments = {'oil': asset(1500, 500, 0, 'payment'), 'social_security': asset(2762, 0, 0, 'payment')}
-assets['oil']= dict(expected_value = 1500, variance=500, beta=0, type='payment')
-assets['social_security'] = dict(expected_value = 2762, variance=0, beta=0, type='payment')
+assets['oil']= dict(expected_returns = 1500, variance=500, beta=0, type='payment')
+assets['social_security'] = dict(expected_returns = 2762, variance=0, beta=0, type='payment')
 
 for asset in assets:
-    keys = assets[asset]
-    assert all(('variance', 'expected_value', 'beta', 'type') ) in keys
+    keys = assets[asset].keys()
+    set_difference = set(keys) ^ set(['variance', 'expected_returns', 'beta', 'type'])
+    assert set_difference == set(), "Found the following uncommon Keys: {}".format(set_difference)
 
 """
 The following values should be set up by the user and represent their general behavior.

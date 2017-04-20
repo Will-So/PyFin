@@ -85,7 +85,7 @@ def calculate(connection, assets, investments):
     cash = assets.query('account_type == "bank"').balance.sum()
     stocks = investments.positionValue.sum()
     retirement = assets.query('account_type == "investment"').balance.sum()
-    import pdb; pdb.set_trace()
+    # import pdb; pdb.set_trace()
 
     accounts_receivable = pd.read_sql(most_recent_accounts_pending, connection)
     accounts_receivable = accounts_receivable.amount.sum()
@@ -98,8 +98,8 @@ def calculate(connection, assets, investments):
         net_worth_info = cursor.execute(most_recent_net_worth).fetchone()
         logger.info("Net Worth: {}".format(net_worth_info))
 
-        days_between = (datetime.strptime(net_worth_info[0], '%Y-%m-%d') -
-                        datetime.strptime(today, '%Y-%m-%d'))
+        days_between = (datetime.strptime(today, '%Y-%m-%d') -
+                        datetime.strptime(net_worth_info[0], '%Y-%m-%d'))
 
         logger.info("Days Between: {}".format(days_between))
         days_between = days_between.days # from timedelta to int
